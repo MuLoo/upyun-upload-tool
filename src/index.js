@@ -13,40 +13,35 @@ class UpYunTool {
     this.upyun = new UpYun.Client(upyunService);
   }
   /**
-      * @return Number // byte
-      */
-  usage () {
-    return new Promise((resolve, reject) => {
-      this.upyun.usage((err, result) => {
-        if (!err && result && result.statusCode === 200) {
-          const usageByte = Number(result.data);
-          if (this.console) console.log('usage ' + usageByte + ' bytes (' + (usageByte / 1024 / 1024).toFixed(2) + ' MB)');
-          resolve(Number(result.data));
-        } else {
-          reject(result);
-        }
+    * @param {String} remotePath - 远程
+    * @return Number // byte
+    */
+    usage (remotePath) {
+      return new Promise((resolve, reject) => {
+        this.upyun.usage(remotePath).then(size => {
+          resolve(size);
+        }).catch(error => reject(error));
       });
-    });
-  }
+    }
   /**
-			* @param {String} remotePath - 需要查看的目录
-			* @param {Object} options - 配置参数
-			* @param {Number} options.limit - 每次请求获取的目录最大列表，最大值 10000，默认 100
-			* @param {String} options.order - 列表以文件最后修改时间排序，可选值 asc|desc，默认 asc
-			* @param {String} options.iter - 遍历起点，每次响应参数中，将会包含遍历下一页需要的 iter 值
-      * @return {Object}
-      * {
-   		*		files: [
-   		*		  {
-   		*		    name: 'example.txt', // file or dir name
-   		*		    type: 'N', // file type, N: file; F: dir
-   		*		    size: 28392812, // file size
-   		*		    time: 1486053098 // last modify time
-   		*		  }
-   		*		],
-			*   next: 'dlam9pd2Vmd2Z3Zg==' // next page iter
-			* }
-      */
+    * @param {String} remotePath - 需要查看的目录
+    * @param {Object} options - 配置参数
+    * @param {Number} options.limit - 每次请求获取的目录最大列表，最大值 10000，默认 100
+    * @param {String} options.order - 列表以文件最后修改时间排序，可选值 asc|desc，默认 asc
+    * @param {String} options.iter - 遍历起点，每次响应参数中，将会包含遍历下一页需要的 iter 值
+    * @return {Object}
+    * {
+    *		files: [
+    *		  {
+    *		    name: 'example.txt', // file or dir name
+    *		    type: 'N', // file type, N: file; F: dir
+    *		    size: 28392812, // file size
+    *		    time: 1486053098 // last modify time
+    *		  }
+    *		],
+    *   next: 'dlam9pd2Vmd2Z3Zg==' // next page iter
+    * }
+  */
   listDir (remotePath, options = {limit: 100, order: 'asc' }) {
     return new Promise((resolve, reject) => {
       // 是否完全获取完毕交给业务层面处理
@@ -55,6 +50,9 @@ class UpYunTool {
 			 .catch(error => reject(error));
     });
   }
+  /**
+   * @param {String} remotePath - 想创建的远程目录路径
+   */
   makeDir (remotePath) {
     return new Promise((resolve, reject) => {
       let RETRY = 3;
@@ -72,6 +70,11 @@ class UpYunTool {
 			 mkdir();
     });
   }
+  /**
+   * @param {String} remotePath - 远程文件保存路径
+   * @param {String|Stream|Buffer} localFile - 需要上传的本地文件
+   * @param {Object} options - 上传参数 Content-MD5 | Content-Length | Content-Type | Content-Secret | x-gmkerl-thumb | x-upyun-meta-x | x-upyun-meta-ttl 参见http://docs.upyun.com/api/rest_api/#_2
+   */
   putFile (remotePath, localFile, opts = {}) {
     return new Promise((resolve, reject) => {
       if (this.console) console.log('[OK]putFile: ' + remotePath);
@@ -91,6 +94,9 @@ class UpYunTool {
       upload();
     });
   }
+  /**
+   * @param {String} remotePath - 远程文件路径
+   */
   headFile (remotePath) {
     return new Promise((resolve, reject) => {
       this.upyun.headFile(remotePath).then(res => {
@@ -98,6 +104,11 @@ class UpYunTool {
       }).catch(error => reject(error));
     });
   }
+  /**
+   * 下载文件
+   * @param {String} remotePath - 文件远程路径
+   * @param {Stream} saveStream - 可选值，如果传递则要传递一个流，下载的文件写入该流中。
+   */
   getFile (remotePath, saveStream) {
     return new Promise((resolve, reject) => {
       this.upyun.getFile(remotePath, saveStream).then(content => {
@@ -105,6 +116,9 @@ class UpYunTool {
       }).catch(error => reject(error));
     });
   }
+  /**
+   * @param {String} 文件或目录的远程路径
+   */
   deleteFile (remotePath) {
     return new Promise((resolve, reject) => {
       this.upyun.deleteFile(remotePath).then(res => {
@@ -114,7 +128,10 @@ class UpYunTool {
     });
   }
 
-  // --- Advanced functions ---
+  /**
+   * @param {String} remotePath - 远程存储路径
+   * @param {String} localPath - 本地文件夹目录
+   */
   putDir (remotePath, localPath) {
     const sub = {
       remotePaths: [],
