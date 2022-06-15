@@ -1,0 +1,37 @@
+{
+  "name": "upyun-upload-tool",
+  "version": "0.0.3",
+  "description": "upyun node-sdk 封装",
+  "main": "dist/index.js",
+  "scripts": {
+    "lint": "eslint --ext .jsx,.js src/",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "rollup -c rollup.config.js -w",
+    "build": "rollup -c rollup.config.js"
+  },
+  "keywords": [
+    "upyun",
+    "upload",
+    "js"
+  ],
+  "author": "fly20091124@126.com",
+  "license": "ISC",
+  "dependencies": {
+    "@rollup/plugin-json": "^4.1.0",
+    "fs-promise": "^2.0.3",
+    "upyun": "^3.4.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.5",
+    "@babel/plugin-transform-runtime": "^7.18.5",
+    "@babel/preset-env": "^7.18.2",
+    "core-js": "^2.6.8",
+    "eslint": "^8.17.0",
+    "rollup": "^2.75.6",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-eslint": "^7.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "uri-js": "^4.4.1"
+  }
+}
