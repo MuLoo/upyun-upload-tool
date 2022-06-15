@@ -1,6 +1,6 @@
 {
   "name": "upyun-upload-tool",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "upyun node-sdk 封装",
   "main": "dist/index.js",
   "scripts": {
