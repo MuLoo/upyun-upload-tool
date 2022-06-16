@@ -630,14 +630,14 @@
 	  throw TypeError("Can't convert object to primitive value");
 	};
 
-	var dP$1 = Object.defineProperty;
+	var dP = Object.defineProperty;
 
-	var f$4 = _descriptors ? Object.defineProperty : function defineProperty(O, P, Attributes) {
+	var f$1 = _descriptors ? Object.defineProperty : function defineProperty(O, P, Attributes) {
 	  _anObject(O);
 	  P = _toPrimitive(P, true);
 	  _anObject(Attributes);
 	  if (_ie8DomDefine) try {
-	    return dP$1(O, P, Attributes);
+	    return dP(O, P, Attributes);
 	  } catch (e) { /* empty */ }
 	  if ('get' in Attributes || 'set' in Attributes) throw TypeError('Accessors not supported!');
 	  if ('value' in Attributes) O[P] = Attributes.value;
@@ -645,7 +645,7 @@
 	};
 
 	var _objectDp = {
-		f: f$4
+		f: f$1
 	};
 
 	var _propertyDesc = function (bitmap, value) {
@@ -1044,12 +1044,12 @@
 	  this.reject = _aFunction(reject);
 	}
 
-	var f$3 = function (C) {
+	var f = function (C) {
 	  return new PromiseCapability(C);
 	};
 
 	var _newPromiseCapability = {
-		f: f$3
+		f: f
 	};
 
 	var _perform = function (exec) {
@@ -1395,12 +1395,6 @@
 	  }
 	});
 
-	var f$2 = {}.propertyIsEnumerable;
-
-	var _objectPie = {
-		f: f$2
-	};
-
 	// fallback for non-array-like ES3 and non-enumerable old V8 strings
 
 	// eslint-disable-next-line no-prototype-builtins
@@ -1413,286 +1407,6 @@
 	  if (it == undefined) throw TypeError("Can't call method on  " + it);
 	  return it;
 	};
-
-	// to indexed object, toObject with fallback for non-array-like ES3 strings
-
-
-	var _toIobject = function (it) {
-	  return _iobject(_defined(it));
-	};
-
-	var gOPD$1 = Object.getOwnPropertyDescriptor;
-
-	var f$1 = _descriptors ? gOPD$1 : function getOwnPropertyDescriptor(O, P) {
-	  O = _toIobject(O);
-	  P = _toPrimitive(P, true);
-	  if (_ie8DomDefine) try {
-	    return gOPD$1(O, P);
-	  } catch (e) { /* empty */ }
-	  if (_has(O, P)) return _propertyDesc(!_objectPie.f.call(O, P), O[P]);
-	};
-
-	var _objectGopd = {
-		f: f$1
-	};
-
-	// Works with __proto__ only. Old v8 can't work with null proto objects.
-	/* eslint-disable no-proto */
-
-
-	var check = function (O, proto) {
-	  _anObject(O);
-	  if (!_isObject(proto) && proto !== null) throw TypeError(proto + ": can't set as prototype!");
-	};
-	var _setProto = {
-	  set: Object.setPrototypeOf || ('__proto__' in {} ? // eslint-disable-line
-	    function (test, buggy, set) {
-	      try {
-	        set = _ctx(Function.call, _objectGopd.f(Object.prototype, '__proto__').set, 2);
-	        set(test, []);
-	        buggy = !(test instanceof Array);
-	      } catch (e) { buggy = true; }
-	      return function setPrototypeOf(O, proto) {
-	        check(O, proto);
-	        if (buggy) O.__proto__ = proto;
-	        else set(O, proto);
-	        return O;
-	      };
-	    }({}, false) : undefined),
-	  check: check
-	};
-
-	var setPrototypeOf = _setProto.set;
-	var _inheritIfRequired = function (that, target, C) {
-	  var S = target.constructor;
-	  var P;
-	  if (S !== C && typeof S == 'function' && (P = S.prototype) !== C.prototype && _isObject(P) && setPrototypeOf) {
-	    setPrototypeOf(that, P);
-	  } return that;
-	};
-
-	var max = Math.max;
-	var min = Math.min;
-	var _toAbsoluteIndex = function (index, length) {
-	  index = _toInteger(index);
-	  return index < 0 ? max(index + length, 0) : min(index, length);
-	};
-
-	// false -> Array#indexOf
-	// true  -> Array#includes
-
-
-
-	var _arrayIncludes = function (IS_INCLUDES) {
-	  return function ($this, el, fromIndex) {
-	    var O = _toIobject($this);
-	    var length = _toLength(O.length);
-	    var index = _toAbsoluteIndex(fromIndex, length);
-	    var value;
-	    // Array#includes uses SameValueZero equality algorithm
-	    // eslint-disable-next-line no-self-compare
-	    if (IS_INCLUDES && el != el) while (length > index) {
-	      value = O[index++];
-	      // eslint-disable-next-line no-self-compare
-	      if (value != value) return true;
-	    // Array#indexOf ignores holes, Array#includes - not
-	    } else for (;length > index; index++) if (IS_INCLUDES || index in O) {
-	      if (O[index] === el) return IS_INCLUDES || index || 0;
-	    } return !IS_INCLUDES && -1;
-	  };
-	};
-
-	var shared = _shared('keys');
-
-	var _sharedKey = function (key) {
-	  return shared[key] || (shared[key] = _uid(key));
-	};
-
-	var arrayIndexOf = _arrayIncludes(false);
-	var IE_PROTO$2 = _sharedKey('IE_PROTO');
-
-	var _objectKeysInternal = function (object, names) {
-	  var O = _toIobject(object);
-	  var i = 0;
-	  var result = [];
-	  var key;
-	  for (key in O) if (key != IE_PROTO$2) _has(O, key) && result.push(key);
-	  // Don't enum bug & hidden keys
-	  while (names.length > i) if (_has(O, key = names[i++])) {
-	    ~arrayIndexOf(result, key) || result.push(key);
-	  }
-	  return result;
-	};
-
-	// IE 8- don't enum bug keys
-	var _enumBugKeys = (
-	  'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
-	).split(',');
-
-	// 19.1.2.7 / 15.2.3.4 Object.getOwnPropertyNames(O)
-
-	var hiddenKeys = _enumBugKeys.concat('length', 'prototype');
-
-	var f = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
-	  return _objectKeysInternal(O, hiddenKeys);
-	};
-
-	var _objectGopn = {
-		f: f
-	};
-
-	var _stringWs = '\x09\x0A\x0B\x0C\x0D\x20\xA0\u1680\u180E\u2000\u2001\u2002\u2003' +
-	  '\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028\u2029\uFEFF';
-
-	var space = '[' + _stringWs + ']';
-	var non = '\u200b\u0085';
-	var ltrim = RegExp('^' + space + space + '*');
-	var rtrim = RegExp(space + space + '*$');
-
-	var exporter = function (KEY, exec, ALIAS) {
-	  var exp = {};
-	  var FORCE = _fails(function () {
-	    return !!_stringWs[KEY]() || non[KEY]() != non;
-	  });
-	  var fn = exp[KEY] = FORCE ? exec(trim$1) : _stringWs[KEY];
-	  if (ALIAS) exp[ALIAS] = fn;
-	  _export(_export.P + _export.F * FORCE, 'String', exp);
-	};
-
-	// 1 -> String#trimLeft
-	// 2 -> String#trimRight
-	// 3 -> String#trim
-	var trim$1 = exporter.trim = function (string, TYPE) {
-	  string = String(_defined(string));
-	  if (TYPE & 1) string = string.replace(ltrim, '');
-	  if (TYPE & 2) string = string.replace(rtrim, '');
-	  return string;
-	};
-
-	var _stringTrim = exporter;
-
-	// 19.1.2.14 / 15.2.3.14 Object.keys(O)
-
-
-
-	var _objectKeys = Object.keys || function keys(O) {
-	  return _objectKeysInternal(O, _enumBugKeys);
-	};
-
-	var _objectDps = _descriptors ? Object.defineProperties : function defineProperties(O, Properties) {
-	  _anObject(O);
-	  var keys = _objectKeys(Properties);
-	  var length = keys.length;
-	  var i = 0;
-	  var P;
-	  while (length > i) _objectDp.f(O, P = keys[i++], Properties[P]);
-	  return O;
-	};
-
-	// 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
-
-
-
-	var IE_PROTO$1 = _sharedKey('IE_PROTO');
-	var Empty = function () { /* empty */ };
-	var PROTOTYPE = 'prototype';
-
-	// Create object with fake `null` prototype: use iframe Object with cleared prototype
-	var createDict = function () {
-	  // Thrash, waste and sodomy: IE GC bug
-	  var iframe = _domCreate('iframe');
-	  var i = _enumBugKeys.length;
-	  var lt = '<';
-	  var gt = '>';
-	  var iframeDocument;
-	  iframe.style.display = 'none';
-	  _html.appendChild(iframe);
-	  iframe.src = 'javascript:'; // eslint-disable-line no-script-url
-	  // createDict = iframe.contentWindow.Object;
-	  // html.removeChild(iframe);
-	  iframeDocument = iframe.contentWindow.document;
-	  iframeDocument.open();
-	  iframeDocument.write(lt + 'script' + gt + 'document.F=Object' + lt + '/script' + gt);
-	  iframeDocument.close();
-	  createDict = iframeDocument.F;
-	  while (i--) delete createDict[PROTOTYPE][_enumBugKeys[i]];
-	  return createDict();
-	};
-
-	var _objectCreate = Object.create || function create(O, Properties) {
-	  var result;
-	  if (O !== null) {
-	    Empty[PROTOTYPE] = _anObject(O);
-	    result = new Empty();
-	    Empty[PROTOTYPE] = null;
-	    // add "__proto__" for Object.getPrototypeOf polyfill
-	    result[IE_PROTO$1] = O;
-	  } else result = createDict();
-	  return Properties === undefined ? result : _objectDps(result, Properties);
-	};
-
-	var gOPN = _objectGopn.f;
-	var gOPD = _objectGopd.f;
-	var dP = _objectDp.f;
-	var $trim = _stringTrim.trim;
-	var NUMBER = 'Number';
-	var $Number = _global[NUMBER];
-	var Base = $Number;
-	var proto$1 = $Number.prototype;
-	// Opera ~12 has broken Object#toString
-	var BROKEN_COF = _cof(_objectCreate(proto$1)) == NUMBER;
-	var TRIM = 'trim' in String.prototype;
-
-	// 7.1.3 ToNumber(argument)
-	var toNumber = function (argument) {
-	  var it = _toPrimitive(argument, false);
-	  if (typeof it == 'string' && it.length > 2) {
-	    it = TRIM ? it.trim() : $trim(it, 3);
-	    var first = it.charCodeAt(0);
-	    var third, radix, maxCode;
-	    if (first === 43 || first === 45) {
-	      third = it.charCodeAt(2);
-	      if (third === 88 || third === 120) return NaN; // Number('+0x1') should be NaN, old V8 fix
-	    } else if (first === 48) {
-	      switch (it.charCodeAt(1)) {
-	        case 66: case 98: radix = 2; maxCode = 49; break; // fast equal /^0b[01]+$/i
-	        case 79: case 111: radix = 8; maxCode = 55; break; // fast equal /^0o[0-7]+$/i
-	        default: return +it;
-	      }
-	      for (var digits = it.slice(2), i = 0, l = digits.length, code; i < l; i++) {
-	        code = digits.charCodeAt(i);
-	        // parseInt parses a string to a first unavailable symbol
-	        // but ToNumber should return NaN if a string contains unavailable symbols
-	        if (code < 48 || code > maxCode) return NaN;
-	      } return parseInt(digits, radix);
-	    }
-	  } return +it;
-	};
-
-	if (!$Number(' 0o1') || !$Number('0b1') || $Number('+0x1')) {
-	  $Number = function Number(value) {
-	    var it = arguments.length < 1 ? 0 : value;
-	    var that = this;
-	    return that instanceof $Number
-	      // check on 1..constructor(foo) case
-	      && (BROKEN_COF ? _fails(function () { proto$1.valueOf.call(that); }) : _cof(that) != NUMBER)
-	        ? _inheritIfRequired(new Base(toNumber(it)), that, $Number) : toNumber(it);
-	  };
-	  for (var keys = _descriptors ? gOPN(Base) : (
-	    // ES3:
-	    'MAX_VALUE,MIN_VALUE,NaN,NEGATIVE_INFINITY,POSITIVE_INFINITY,' +
-	    // ES6 (in case, if modules with ES6 Number statics required before):
-	    'EPSILON,isFinite,isInteger,isNaN,isSafeInteger,MAX_SAFE_INTEGER,' +
-	    'MIN_SAFE_INTEGER,parseFloat,parseInt,isInteger'
-	  ).split(','), j = 0, key$1; keys.length > j; j++) {
-	    if (_has(Base, key$1 = keys[j]) && !_has($Number, key$1)) {
-	      dP($Number, key$1, gOPD(Base, key$1));
-	    }
-	  }
-	  $Number.prototype = proto$1;
-	  proto$1.constructor = $Number;
-	  _redefine(_global, NUMBER, $Number);
-	}
 
 	// 7.1.13 ToObject(argument)
 
@@ -1804,6 +1518,131 @@
 	      ? TO_STRING ? s.charAt(i) : a
 	      : TO_STRING ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
 	  };
+	};
+
+	// to indexed object, toObject with fallback for non-array-like ES3 strings
+
+
+	var _toIobject = function (it) {
+	  return _iobject(_defined(it));
+	};
+
+	var max = Math.max;
+	var min = Math.min;
+	var _toAbsoluteIndex = function (index, length) {
+	  index = _toInteger(index);
+	  return index < 0 ? max(index + length, 0) : min(index, length);
+	};
+
+	// false -> Array#indexOf
+	// true  -> Array#includes
+
+
+
+	var _arrayIncludes = function (IS_INCLUDES) {
+	  return function ($this, el, fromIndex) {
+	    var O = _toIobject($this);
+	    var length = _toLength(O.length);
+	    var index = _toAbsoluteIndex(fromIndex, length);
+	    var value;
+	    // Array#includes uses SameValueZero equality algorithm
+	    // eslint-disable-next-line no-self-compare
+	    if (IS_INCLUDES && el != el) while (length > index) {
+	      value = O[index++];
+	      // eslint-disable-next-line no-self-compare
+	      if (value != value) return true;
+	    // Array#indexOf ignores holes, Array#includes - not
+	    } else for (;length > index; index++) if (IS_INCLUDES || index in O) {
+	      if (O[index] === el) return IS_INCLUDES || index || 0;
+	    } return !IS_INCLUDES && -1;
+	  };
+	};
+
+	var shared = _shared('keys');
+
+	var _sharedKey = function (key) {
+	  return shared[key] || (shared[key] = _uid(key));
+	};
+
+	var arrayIndexOf = _arrayIncludes(false);
+	var IE_PROTO$2 = _sharedKey('IE_PROTO');
+
+	var _objectKeysInternal = function (object, names) {
+	  var O = _toIobject(object);
+	  var i = 0;
+	  var result = [];
+	  var key;
+	  for (key in O) if (key != IE_PROTO$2) _has(O, key) && result.push(key);
+	  // Don't enum bug & hidden keys
+	  while (names.length > i) if (_has(O, key = names[i++])) {
+	    ~arrayIndexOf(result, key) || result.push(key);
+	  }
+	  return result;
+	};
+
+	// IE 8- don't enum bug keys
+	var _enumBugKeys = (
+	  'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
+	).split(',');
+
+	// 19.1.2.14 / 15.2.3.14 Object.keys(O)
+
+
+
+	var _objectKeys = Object.keys || function keys(O) {
+	  return _objectKeysInternal(O, _enumBugKeys);
+	};
+
+	var _objectDps = _descriptors ? Object.defineProperties : function defineProperties(O, Properties) {
+	  _anObject(O);
+	  var keys = _objectKeys(Properties);
+	  var length = keys.length;
+	  var i = 0;
+	  var P;
+	  while (length > i) _objectDp.f(O, P = keys[i++], Properties[P]);
+	  return O;
+	};
+
+	// 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
+
+
+
+	var IE_PROTO$1 = _sharedKey('IE_PROTO');
+	var Empty = function () { /* empty */ };
+	var PROTOTYPE = 'prototype';
+
+	// Create object with fake `null` prototype: use iframe Object with cleared prototype
+	var createDict = function () {
+	  // Thrash, waste and sodomy: IE GC bug
+	  var iframe = _domCreate('iframe');
+	  var i = _enumBugKeys.length;
+	  var lt = '<';
+	  var gt = '>';
+	  var iframeDocument;
+	  iframe.style.display = 'none';
+	  _html.appendChild(iframe);
+	  iframe.src = 'javascript:'; // eslint-disable-line no-script-url
+	  // createDict = iframe.contentWindow.Object;
+	  // html.removeChild(iframe);
+	  iframeDocument = iframe.contentWindow.document;
+	  iframeDocument.open();
+	  iframeDocument.write(lt + 'script' + gt + 'document.F=Object' + lt + '/script' + gt);
+	  iframeDocument.close();
+	  createDict = iframeDocument.F;
+	  while (i--) delete createDict[PROTOTYPE][_enumBugKeys[i]];
+	  return createDict();
+	};
+
+	var _objectCreate = Object.create || function create(O, Properties) {
+	  var result;
+	  if (O !== null) {
+	    Empty[PROTOTYPE] = _anObject(O);
+	    result = new Empty();
+	    Empty[PROTOTYPE] = null;
+	    // add "__proto__" for Object.getPrototypeOf polyfill
+	    result[IE_PROTO$1] = O;
+	  } else result = createDict();
+	  return Properties === undefined ? result : _objectDps(result, Properties);
 	};
 
 	var IteratorPrototype = {};
@@ -11642,52 +11481,52 @@
 	        operator = params.operator,
 	        password = params.password,
 	        _params$console = params.console,
-	        console = _params$console === void 0 ? true : _params$console;
+	        console = _params$console === void 0 ? true : _params$console,
+	        _params$retry = params.retry,
+	        retry = _params$retry === void 0 ? 3 : _params$retry;
 	    this.console = console;
 	    var upyunService = new index.Service(bucket, operator, password);
 	    this.upyun = new index.Client(upyunService);
+	    this.retry = retry;
 	  }
 	  /**
-	      * @return Number // byte
-	      */
+	   * @param {String} remotePath - 远程
+	   * @return Number // byte
+	   */
 
 
 	  _createClass(UpYunTool, [{
 	    key: "usage",
-	    value: function usage() {
+	    value: function usage(remotePath) {
 	      var _this = this;
 
 	      return new Promise(function (resolve, reject) {
-	        _this.upyun.usage(function (err, result) {
-	          if (!err && result && result.statusCode === 200) {
-	            var usageByte = Number(result.data);
-	            if (_this.console) console.log('usage ' + usageByte + ' bytes (' + (usageByte / 1024 / 1024).toFixed(2) + ' MB)');
-	            resolve(Number(result.data));
-	          } else {
-	            reject(result);
-	          }
+	        _this.upyun.usage(remotePath).then(function (size) {
+	          resolve(size);
+	        })["catch"](function (error) {
+	          return reject(error);
 	        });
 	      });
 	    }
 	    /**
-	    	* @param {String} remotePath - 需要查看的目录
-	    	* @param {Object} options - 配置参数
-	    	* @param {Number} options.limit - 每次请求获取的目录最大列表，最大值 10000，默认 100
-	    	* @param {String} options.order - 列表以文件最后修改时间排序，可选值 asc|desc，默认 asc
-	    	* @param {String} options.iter - 遍历起点，每次响应参数中，将会包含遍历下一页需要的 iter 值
-	        * @return {Object}
-	        * {
-	     		*		files: [
-	     		*		  {
-	     		*		    name: 'example.txt', // file or dir name
-	     		*		    type: 'N', // file type, N: file; F: dir
-	     		*		    size: 28392812, // file size
-	     		*		    time: 1486053098 // last modify time
-	     		*		  }
-	     		*		],
-	    	*   next: 'dlam9pd2Vmd2Z3Zg==' // next page iter
-	    	* }
-	        */
+	     * @param {String} remotePath - 需要查看的目录
+	     * @param {Object} options - 配置参数
+	     * @param {Number} options.limit - 每次请求获取的目录最大列表，最大值 10000，默认 100
+	     * @param {String} options.order - 列表以文件最后修改时间排序，可选值 asc|desc，默认 asc
+	     * @param {String} options.iter - 遍历起点，每次响应参数中，将会包含遍历下一页需要的 iter 值
+	     * @return {Object}
+	     * {
+	     *		files: [
+	     *		  {
+	     *		    name: 'example.txt', // file or dir name
+	     *		    type: 'N', // file type, N: file; F: dir
+	     *		    size: 28392812, // file size
+	     *		    time: 1486053098 // last modify time
+	     *		  }
+	     *		],
+	     *   next: 'dlam9pd2Vmd2Z3Zg==' // next page iter
+	     * }
+	    */
 
 	  }, {
 	    key: "listDir",
@@ -11707,13 +11546,17 @@
 	        });
 	      });
 	    }
+	    /**
+	    * @param {String} remotePath - 想创建的远程目录路径
+	    */
+
 	  }, {
 	    key: "makeDir",
 	    value: function makeDir(remotePath) {
 	      var _this3 = this;
 
 	      return new Promise(function (resolve, reject) {
-	        var RETRY = 3;
+	        var RETRY = _this3.retry;
 
 	        var mkdir = /*#__PURE__*/function () {
 	          var _ref = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee() {
@@ -11735,7 +11578,7 @@
 	                  case 7:
 	                    _context.prev = 7;
 	                    _context.t0 = _context["catch"](0);
-	                    if (_this3.console) console.log('makeDir fail: ' + remotePath, '剩余重试次数:', RETRY);
+	                    if (_this3.console && RETRY > 0) console.log('makeDir fail: ' + remotePath, '剩余重试次数:', RETRY);
 	                    --RETRY;
 
 	                    if (!(RETRY >= 0)) {
@@ -11764,6 +11607,12 @@
 	        mkdir();
 	      });
 	    }
+	    /**
+	    * @param {String} remotePath - 远程文件保存路径
+	    * @param {String|Stream|Buffer} localFile - 需要上传的本地文件
+	    * @param {Object} options - 上传参数 Content-MD5 | Content-Length | Content-Type | Content-Secret | x-gmkerl-thumb | x-upyun-meta-x | x-upyun-meta-ttl 参见http://docs.upyun.com/api/rest_api/#_2
+	    */
+
 	  }, {
 	    key: "putFile",
 	    value: function putFile(remotePath, localFile) {
@@ -11772,7 +11621,7 @@
 	      var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 	      return new Promise(function (resolve, reject) {
 	        if (_this4.console) console.log('[OK]putFile: ' + remotePath);
-	        var RETRY = 3;
+	        var RETRY = _this4.retry;
 
 	        var upload = /*#__PURE__*/function () {
 	          var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2() {
@@ -11786,14 +11635,12 @@
 
 	                  case 3:
 	                    if (_this4.console) console.log('[OK]putFile: ' + remotePath);
-	                    resolve(remotePath);
-	                    _context2.next = 14;
-	                    break;
+	                    return _context2.abrupt("return", resolve(remotePath));
 
 	                  case 7:
 	                    _context2.prev = 7;
 	                    _context2.t0 = _context2["catch"](0);
-	                    if (_this4.console) console.log('putFile fail: ' + remotePath, '剩余重试次数:', RETRY);
+	                    if (_this4.console && RETRY > 0) console.log('putFile fail: ' + remotePath, '剩余重试次数:', RETRY);
 	                    --RETRY;
 
 	                    if (!(RETRY >= 0)) {
@@ -11822,6 +11669,10 @@
 	        upload();
 	      });
 	    }
+	    /**
+	    * @param {String} remotePath - 远程文件路径
+	    */
+
 	  }, {
 	    key: "headFile",
 	    value: function headFile(remotePath) {
@@ -11835,6 +11686,12 @@
 	        });
 	      });
 	    }
+	    /**
+	    * 下载文件
+	    * @param {String} remotePath - 文件远程路径
+	    * @param {Stream} saveStream - 可选值，如果传递则要传递一个流，下载的文件写入该流中。
+	    */
+
 	  }, {
 	    key: "getFile",
 	    value: function getFile(remotePath, saveStream) {
@@ -11848,6 +11705,10 @@
 	        });
 	      });
 	    }
+	    /**
+	    * @param {String} 文件或目录的远程路径
+	    */
+
 	  }, {
 	    key: "deleteFile",
 	    value: function deleteFile(remotePath) {
@@ -11861,7 +11722,11 @@
 	          return reject(err);
 	        });
 	      });
-	    } // --- Advanced functions ---
+	    }
+	    /**
+	    * @param {String} remotePath - 远程存储路径
+	    * @param {String} localPath - 本地文件夹目录
+	    */
 
 	  }, {
 	    key: "putDir",

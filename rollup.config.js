@@ -26,9 +26,5 @@ export default {
       include: ['src/**'],
       exclude: ['node_modules/**']
     })
-  ],
-  ignore: [
-    'node_modules/**' // 忽略目录
   ]
-
 };
