@@ -11468,6 +11468,8 @@
 	  Service: Service
 	};
 
+	/* eslint-disable indent */
+
 	/**
 	 * 使用新的node-sdk https://github.com/upyun/node-sdk
 	 * 又拍接口文档 http://docs.upyun.com/api/rest_api/
@@ -11615,10 +11617,10 @@
 
 	  }, {
 	    key: "putFile",
-	    value: function putFile(remotePath, localFile) {
+	    value: function putFile(remotePath, localFile, opts) {
 	      var _this4 = this;
 
-	      var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	      console.log('参数', remotePath, localFile, opts);
 	      return new Promise(function (resolve, reject) {
 	        if (_this4.console) console.log('[OK]putFile: ' + remotePath);
 	        var RETRY = _this4.retry;
@@ -11757,7 +11759,7 @@
 	          if (datas[i].isDirectory()) {
 	            arrSubP.push(_this8.putDir(sub.remotePaths[i], sub.localPaths[i]));
 	          } else {
-	            arrSubP.push(_this8.putFile(sub.remotePaths[i], sub.localPaths[i]));
+	            arrSubP.push(_this8.putFile(sub.remotePaths[i], sub.localPaths[i] && fs__default["default"].existsSync(sub.localPaths[i]) ? fs__default["default"].createReadStream(sub.localPaths[i]) : sub.localPaths[i]));
 	          }
 	        }
 
