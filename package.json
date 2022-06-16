@@ -9,6 +9,14 @@
     "dev": "rollup -c rollup.config.js -w",
     "build": "rollup -c rollup.config.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MuLoo/upyun-upload-tool"
+  },
+  "homepage": "https://github.com/MuLoo/upyun-upload-tool#readme",
+  "bugs": {
+    "url": "https://github.com/MuLoo/upyun-upload-tool/issues"
+  },
   "keywords": [
     "upyun",
     "upload",

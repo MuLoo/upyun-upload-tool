@@ -1,5 +1,5 @@
 # upyun-upload-tool
-对upyun sdk [node-sdk](https://github.com/upyun/node-sdk) 的封装。依赖[upyun@3.4.4](https://www.npmjs.com/package/upyun)
+对upyun sdk [node-sdk](https://github.com/upyun/node-sdk) 的封装。依赖[upyun@3.4.4](https://www.npmjs.com/package/upyun)，暂不适用于浏览器环境。
 
 提供上传文件、上传文件夹、删除文件、获取文件信息、获取文件夹列表等功能。
 提供上传时自动失败重试功能。
@@ -19,14 +19,15 @@ const client = new UpYunTool({
   bucket: 'your-service-name',
   operator: 'your-user-name',
   password: 'your-password',
-  console: true // 是否展示操作中的一些信息
+  console: true, // 是否展示执行过程中的一些信息
+  retry: 3 // 当上传文件、生成远程目录失败时的重试次数，默认3次。
 });
 ```
 
 ## 接口
 ### 上传文件 putFile
 putFile(remotePath, localFile, options = {})
-上传文件失败时，默认重试3次，如果三次都失败，则本次上传失败。
+上传文件失败时，默认重试3次，如果3次都失败，则本次上传失败。
 ```js
   /**
    * @param {String} remotePath - 远程文件保存路径
