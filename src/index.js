@@ -1,9 +1,11 @@
+/* eslint-disable indent */
 /**
  * 使用新的node-sdk https://github.com/upyun/node-sdk
  * 又拍接口文档 http://docs.upyun.com/api/rest_api/
  */
  const fsp = require('fs-promise');
  const path = require('path');
+ const fs = require('fs');
  const UpYun = require('upyun');
  class UpYunTool {
 	 constructor (params) {
@@ -76,7 +78,8 @@
 		* @param {String|Stream|Buffer} localFile - 需要上传的本地文件
 		* @param {Object} options - 上传参数 Content-MD5 | Content-Length | Content-Type | Content-Secret | x-gmkerl-thumb | x-upyun-meta-x | x-upyun-meta-ttl 参见http://docs.upyun.com/api/rest_api/#_2
 		*/
-	 putFile (remotePath, localFile, opts = {}) {
+	 putFile (remotePath, localFile, opts) {
+		console.log('参数', remotePath, localFile, opts);
 		 return new Promise((resolve, reject) => {
 			 if (this.console) console.log('[OK]putFile: ' + remotePath);
 			 let RETRY = this.retry;
@@ -155,7 +158,7 @@
 				 if (datas[i].isDirectory()) {
 					 arrSubP.push(this.putDir(sub.remotePaths[i], sub.localPaths[i]));
 				 } else {
-					 arrSubP.push(this.putFile(sub.remotePaths[i], sub.localPaths[i]));
+					 arrSubP.push(this.putFile(sub.remotePaths[i], sub.localPaths[i] && fs.existsSync(sub.localPaths[i]) ? fs.createReadStream(sub.localPaths[i]) : sub.localPaths[i]));
 				 }
 			 }
 			 return Promise.all(arrSubP);

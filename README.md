@@ -27,6 +27,7 @@ const client = new UpYunTool({
 ## 接口
 ### 上传文件 putFile
 putFile(remotePath, localFile, options = {})
+**注意** 这里的 localFile 是文件内容，支持String，Stream, Buffer, 而不是文件的路径。
 上传文件失败时，默认重试3次，如果3次都失败，则本次上传失败。
 ```js
   /**
@@ -41,6 +42,7 @@ client.putFile(remotePath, localFile, options = {})
 
 ### 上传文件夹 putDir
 上传过程会自动在远程创建文件夹，创建目录或上传文件过程如果失败，也会重试3次。
+**注意**,为了上传文件夹的方便，这里localPath接收的是本地文件夹路径，会自动将里面的文件转换成stream的形式上传。
 ```js
 /**
  * @param {String} remotePath - 远程存储路径
