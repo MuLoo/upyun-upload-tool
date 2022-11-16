@@ -1,0 +1,14 @@
+.*.swp
+._*
+.DS_Store
+.git
+.npmrc
+.wafpickle-*
+npm-debug.log
+node_modules/
+test
+node_modules
+testLocal
+.vscode
+src
+test.js

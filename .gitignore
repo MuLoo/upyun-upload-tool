@@ -1,2 +1,7 @@
-test
 node_modules
+testLocal
+.vscode
+test.js
+dist
+.DS_Store
+dist

@@ -7,13 +7,31 @@
  const path = require('path');
  const fs = require('fs');
  const UpYun = require('upyun');
+ const Scheduler = require('./scheduler');
+
+
+let UploadScheduler = null;
+
+
+function generateScheduler ({ size }) {
+	UploadScheduler = new Scheduler({ size });
+	// UploadScheduler.on('end', () => {
+	// 	console.log('all task end');
+	// })
+	// UploadScheduler.on('reject', (err) => {
+	// 	console.log('opps , error!!!', err)
+	// })
+}
+
  class UpYunTool {
 	 constructor (params) {
-		 const {bucket, operator, password, console = true, retry = 3} = params;
+		 const {bucket, operator, password, console = true, retry = 3, concurrent = 6} = params;
 		 this.console = console;
 		 const upyunService = new UpYun.Service(bucket, operator, password);
 		 this.upyun = new UpYun.Client(upyunService);
 		 this.retry = retry;
+		 this.concurrent = concurrent;
+		 generateScheduler({ size: concurrent });
 	 }
 	 /**
 		 * @param {String} remotePath - 远程
@@ -61,7 +79,7 @@
 			 let RETRY = this.retry;
 			 const mkdir = async () => {
 				 try {
-					 const res = await  this.upyun.makeDir(remotePath);
+					 const res = await this.upyun.makeDir(remotePath);
 					 resolve(res);
 				 } catch (error) {
 					 if (this.console  && RETRY > 0) console.log('makeDir fail: ' + remotePath, '剩余重试次数:', RETRY);
@@ -70,7 +88,7 @@
 					 return reject(error);
 				 }
 			 };
-   mkdir();
+   			mkdir();
 		 });
 	 }
 	 /**
@@ -79,9 +97,7 @@
 		* @param {Object} options - 上传参数 Content-MD5 | Content-Length | Content-Type | Content-Secret | x-gmkerl-thumb | x-upyun-meta-x | x-upyun-meta-ttl 参见http://docs.upyun.com/api/rest_api/#_2
 		*/
 	 putFile (remotePath, localFile, opts) {
-		console.log('参数', remotePath, localFile, opts);
 		 return new Promise((resolve, reject) => {
-			 if (this.console) console.log('[OK]putFile: ' + remotePath);
 			 let RETRY = this.retry;
 			 const upload = async () => {
 				 try {
@@ -89,7 +105,7 @@
 					 if (this.console) console.log('[OK]putFile: ' + remotePath);
 					 return resolve(remotePath);
 				 } catch (error) {
-					 if (this.console && RETRY > 0) console.log('putFile fail: ' + remotePath, '剩余重试次数:', RETRY);
+					 if (this.console && RETRY > 0) console.log('\x1B[33m', 'putFile fail: ' + remotePath, '剩余重试次数:', RETRY);
 					 --RETRY;
 					 if (RETRY >= 0) return upload();
 					 return reject(error);
@@ -153,16 +169,28 @@
 			 return Promise.all(sub.promises);
 		 }).then((datas) => {
 			 // 路径对应的内容详情，是文件或文件夹
-			 const arrSubP = [];
-			 for (let i = 0; i < datas.length; i++) {
-				 if (datas[i].isDirectory()) {
-					 arrSubP.push(this.putDir(sub.remotePaths[i], sub.localPaths[i]));
-				 } else {
-					 arrSubP.push(this.putFile(sub.remotePaths[i], sub.localPaths[i] && fs.existsSync(sub.localPaths[i]) ? fs.createReadStream(sub.localPaths[i]) : sub.localPaths[i]));
-				 }
-			 }
-			 return Promise.all(arrSubP);
-		 }).then((results) => {
+			 const allPromises = []
+			 if (!this.concurrent) {
+				for (let i = 0; i < datas.length; i++) {
+					if (datas[i].isDirectory()) {
+						allPromises.push(this.putDir(sub.remotePaths[i], sub.localPaths[i]));
+					} else {
+						allPromises.push(this.putFile(sub.remotePaths[i], sub.localPaths[i] && fs.existsSync(sub.localPaths[i]) ? fs.createReadStream(sub.localPaths[i]) : sub.localPaths[i]));
+					}
+				}
+			 } else {
+				for (let i = 0; i < datas.length; i++) {
+					if (datas[i].isDirectory()) {
+						const [promise, ] = UploadScheduler.addTask(this.putDir.bind(this))(sub.remotePaths[i], sub.localPaths[i]);
+						allPromises.push(promise);
+					} else {
+						const [promise, ] = UploadScheduler.addTask(this.putFile.bind(this))(sub.remotePaths[i], sub.localPaths[i] && fs.existsSync(sub.localPaths[i]) ? fs.createReadStream(sub.localPaths[i]) : sub.localPaths[i])
+						allPromises.push(promise);
+					}
+				}
+			}
+			return Promise.all(allPromises);
+		 }).then((results = []) => {
 			 let paths = [];
 			 results.forEach((result) => {
 				 if (typeof result === 'string') {
@@ -172,7 +200,7 @@
 				 }
 			 });
 			 return paths;
-		 }).catch(err => console.error('putDir Error', err.message));
+		 }).catch(err => console.error('\x1B[31m%s\x1B[0m', `putDir Error: ${err.message}`));
 	 }
  }
 

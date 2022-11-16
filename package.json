@@ -1,6 +1,6 @@
 {
   "name": "upyun-upload-tool",
-  "version": "0.0.5",
+  "version": "0.0.8",
   "description": "upyun node-sdk 封装",
   "main": "dist/index.js",
   "scripts": {
@@ -9,6 +9,7 @@
     "dev": "rollup -c rollup.config.js -w",
     "build": "rollup -c rollup.config.js"
   },
+  "files": ["dist"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MuLoo/upyun-upload-tool"
